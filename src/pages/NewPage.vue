@@ -31,6 +31,7 @@
   </q-page>
 </template>
 <script>
+import { api } from "boot/axios";
 import NoteContainer from "src/components/NoteContainer.vue";
 import { defineComponent, reactive } from "vue";
 import { useLocalNotes } from "src/helper";
@@ -41,7 +42,7 @@ export default defineComponent({
   name: "NewPage",
   setup() {
     const router = useRouter();
-    const notes = useLocalNotes();
+    // const notes = useLocalNotes();
 
     const note = reactive({
       title: "",
@@ -49,15 +50,14 @@ export default defineComponent({
       content: "",
     });
 
-    const submit = () => {
-      notes.value.unshift({
-        ...note,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      });
-
+    const submit = async () => {
+      // notes.value.unshift({
+      //   ...note,
+      //   createdAt: Date.now(),
+      //   updatedAt: Date.now(),
+      // });
+      await api.post("/api/note", { ...note });
       router.push("/");
-
       note.title = "";
       note.description = "";
       note.content = "";

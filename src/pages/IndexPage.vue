@@ -8,11 +8,11 @@
         </div>
       </div>
       <NoteCard
-        v-for="({ title, description }, idx) in notes"
-        :key="idx"
-        :title="title"
-        :description="description"
-        @click="router.push('/note/' + idx)"
+        v-for="note in notes"
+        :key="note.note_id"
+        :title="note.title"
+        :description="note.description"
+        @click="router.push(`/note/${note.note_id}`)"
       />
       <div v-if="notes.length === 0">You have not created any notes.</div>
     </NoteContainer>
@@ -22,15 +22,23 @@
 <script>
 import NoteContainer from "src/components/NoteContainer.vue";
 import NoteCard from "src/components/NoteCard.vue";
-import { useLocalNotes } from "src/helper";
-import { defineComponent } from "vue";
+// import { useLocalNotes } from "src/helper";
+import { api } from "boot/axios";
+import { defineComponent, ref } from "vue";
 import { useRouter } from "vue-router";
 
+// import { notStrictEqual } from "assert";
 export default defineComponent({
   components: { NoteCard, NoteContainer },
   name: "IndexPage",
   setup() {
-    const notes = useLocalNotes();
+    // const notes = useLocalNotes();
+    // const router = useRouter();
+    // return { router, notes };
+    const notes = ref([]);
+    api.get("/api/note").then((response) => {
+      notes.value = response.data;
+    });
     const router = useRouter();
     return { router, notes };
   },

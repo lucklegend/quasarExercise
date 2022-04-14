@@ -17,7 +17,13 @@
           </q-card>
 
           <div class="q-mt-md">
-            <q-btn class="q-ml-sm" color="positive" type="submit">Done</q-btn>
+            <q-btn
+              class="q-ml-sm"
+              color="positive"
+              type="submit"
+              @click="updateNote"
+              >Done</q-btn
+            >
           </div>
         </form>
       </div>
@@ -37,7 +43,7 @@
               class="q-ml-sm"
               color="red"
               icon="delete"
-              @click="remove"
+              @click="remove(note.note_id)"
             />
           </div>
         </div>
@@ -51,26 +57,41 @@
 <script>
 import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useLocalNotes } from "src/helper";
+// import { useLocalNotes } from "src/helper";
 import NoteContainer from "src/components/NoteContainer.vue";
+import { api } from "boot/axios";
 
 export default {
   components: { NoteContainer },
   setup() {
-    const notes = useLocalNotes();
+    // const notes = useLocalNotes();
     const route = useRoute();
-    const noteId = computed(() => parseInt(route.params.id));
-    const note = computed(() => notes.value[noteId.value]);
-
     const router = useRouter();
-    const remove = () => {
-      notes.value.splice(noteId.value, 1);
+    const noteId = computed(() => parseInt(route.params.id));
+    // const note = computed(() => notes.value[noteId.value]);
+    const editing = ref(false);
+    const note = ref([]);
+
+    api.get(`/api/note/?id=${noteId.value}`).then((response) => {
+      note.value = response.data[0];
+    });
+
+    const updateNote = async () => {
+      await api.post("/api/note", note.value);
+    };
+
+    const remove = async (noteId) => {
+      await api.delete(`/api/note/${noteId}`);
       router.push("/");
     };
 
-    const editing = ref(false);
+    // const remove = () => {
+    //   notes.value.splice(noteId.value, 1);
+    //   router.push("/");
+    // };
 
-    return { note, remove, editing };
+    // return { note, remove, editing };
+    return { note, editing, remove, updateNote };
   },
 };
 </script>
